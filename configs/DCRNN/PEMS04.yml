@@ -1,0 +1,64 @@
+if_grad_aug: False
+aug_model_name: "CG"
+model_name: "DCRNNModel"
+epochs: 100
+window_size: &window_size 24
+horizon: &horizon 12 # output size
+lr: 0.01
+weight_decay: 0.01
+milestones: [1, 50, 100]
+gamma: 0.5
+save_dir: "./ckpts"
+model_file: "model_92.84308624267578.pt"
+tolerance: 100 # now running like without early stopping
+batch_size: 64 # hyper
+device: &device "cuda"
+data_root: "/home/zhenyu/program/TSF/framework/BasicTS/datasets/raw_data/PEMS04/"
+processed_root: "/home/zhenyu/program/TSF/framework/InductiveST/data/"
+dataset_name: "PEMS04"
+values_name: "PEMS04.npz"
+networks_name: &networks_name "adj_PEMS04.pkl"
+optimizer: "Adam"
+input_size: &input_size 3 # 1 for univariate, 2 for multivariate
+dropout: 0.1
+mode: "train"
+split_ratio: [0.6, 0.2, 0.2]
+num_nodes: &num_nodes 307
+
+##### for training setting
+train_normalized: False
+
+##### for inductive task setting
+train_node_ratio: 0.05
+val_node_ratio: 0
+seed: 0
+
+
+##### for dicrepancy
+balanced_loss: False
+embedding_loss: False
+
+##### for mixup
+
+
+##### for graph augmentation methods mainly
+eps_f: 1 # hyper
+grad_iter_num: 3 # hyper
+no_graph: False
+original_graph: False
+alpha: 1 # hyper for graph 
+learnable_alpha: False
+  
+model:
+  input_dim: *input_size
+  window_size: *window_size
+  horizon: *horizon
+  hidden_channels: 64 # hyper
+  out_channels: 64 # hyper
+  bias: True
+  K: 3
+  droprate: 0.5
+  num_nodes: *num_nodes
+  num_rnn_layers: 2
+  rnn_units: 64
+  

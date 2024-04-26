@@ -1,0 +1,16 @@
+# check points and results
+ckpts
+wandb
+result
+runs
+draw
+
+# data
+data
+src/model/stgode/datasets
+
+# local info
+TODO.md
+*.png
+*.ipynb
+*.sh

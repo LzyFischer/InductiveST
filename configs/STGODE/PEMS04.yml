@@ -1,0 +1,97 @@
+if_grad_aug: False
+aug_model_name: "CG"
+model_name: "STGODE"
+epochs: 100
+window_size: &window_size 24
+horizon: &horizon 12 # output size
+lr: 0.002
+weight_decay: 0.0002
+milestones: [1, 50, 100]
+gamma: 0.5
+save_dir: "./ckpts"
+model_file: "model_92.84308624267578.pt"
+tolerance: 10 # now running like without early stopping
+batch_size: 16 # hyper
+device: &device "cuda"
+data_root: "/home/zhenyu/program/TSF/framework/BasicTS/datasets/raw_data/PEMS04/"
+processed_root: "/home/zhenyu/program/TSF/framework/InductiveST/data/"
+dataset_name: "PEMS04"
+values_name: "PEMS04.npz"
+networks_name: &networks_name "adj_PEMS04.pkl"
+optimizer: "Adam"
+input_size: &input_size 3 # 1 for univariate, 2 for multivariate
+dropout: 0
+mode: "train"
+split_ratio: [0.6, 0.2, 0.2]
+num_nodes: &num_nodes 307
+
+##### for metrics 
+full_metrics: True
+
+##### for training setting
+train_normalized: False
+dropout: 0
+optimizer: "Adam"
+gamma: 0.5
+milestones: [1, 50, 100]
+batch_size: 16 # hyper
+lr: 0.002
+weight_decay: 0.0001
+epochs: 100
+mask_node_loss: False
+mask_node_ratio: 0.5
+drop_node: False
+drop_node_ratio: 0.1
+
+##### for inductive task setting
+train_node_ratio: 0.1
+val_node_ratio: 0
+seed: 0
+
+##### for dicrepancy
+balanced_loss: False
+embedding_loss: False
+
+#### VAE
+is_vae: False
+vae_epochs: 0
+vae:
+  input_dim: *input_size
+  hidden_dim: 64
+  latent_dim: 64
+  num_layers: 2
+  dropout: 0.1
+
+##### for mixup
+anchor_lambda: 0.5
+
+##### for graph augmentation methods mainly
+graph_learning: False
+dynamic_graph: False
+graph:
+  hidden_dim: 64
+  node2edge_type: cosine
+sparse_threshold: 0.6
+random_graph: False
+gumbel_softmax: True
+gumbel_tau: 1
+
+##### decomposition (still working)
+rstl: True
+
+##### model 
+batch_norm: False
+model:
+  num_features: *input_size
+  num_nodes: *num_nodes
+  window_size: *window_size
+  horizon: *horizon
+
+##### augmentation
+aug_node: False
+aug_model:
+  input_dim: *input_size
+  hidden_dim: 64
+  latent_dim: 64
+  num_layers: 2
+  dropout: 0.1

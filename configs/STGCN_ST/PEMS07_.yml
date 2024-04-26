@@ -1,0 +1,86 @@
+if_grad_aug: True
+aug_model_name: "CG"
+model_name: "STGCN_LG"
+epochs: 50
+window_size: &window_size 24
+horizon: &horizon 12 # output size
+lr: 0.002
+weight_decay: 0.0001
+milestones: [1, 50, 100]
+gamma: 0.5
+save_dir: "./ckpts"
+model_file: "model_92.84308624267578.pt"
+tolerance: 10
+batch_size: 64
+device: &device "cuda:2"
+data_root: "/home/zhenyu/program/TSF/framework/ZeroTS/datasets/raw_data/PEMS07/"
+processed_root: "/home/zhenyu/program/TSF/framework/simple_code/data/"
+dataset_name: "PEMS07"
+values_name: "PEMS07.npz"
+networks_name: &networks_name "adj_PEMS07.pkl"
+optimizer: "Adam"
+input_size: &input_size 1 # 1 for univariate, 2 for multivariate
+dropout: 0.1
+mode: "train"
+stride: 1
+split_ratio: [0.6, 0.2, 0.2]
+num_of_vertices: &num_of_vertices 883
+
+train_node_ratio: 0.1
+val_node_ratio: 0.1
+seed: 0
+eps_f: 0.5
+grad_iter_num: 1
+no_graph: True
+
+
+rnn:
+  input_size: *input_size
+  hidden_size: 64
+  output_size: *horizon
+  
+stgcn:
+  in_channels: *input_size
+  hidden_channels: 64
+  out_channels: 64
+  kernel_size: 3
+  Ks: 3
+  Kt: 3
+  blocks: [[1], [64, 16, 64], [64, 16, 64], [128, 128], [12]]
+  T: 12
+  n_vertex: *num_of_vertices
+  act_func: "glu"
+  graph_conv_type: "cheb_graph_conv"
+  networks_name: *networks_name
+  bias: True
+  droprate: 0.5
+
+dstagnn:
+  ctx: 0
+  in_channels: 1
+  nb_block: 4
+  n_heads: 3
+  K: 3
+  d_k: 32
+  d_model: 512
+  nb_chev_filter: 32
+  nb_time_filter: 32
+  batch_size: 32
+  graph: AG
+  model_name: dstagnn
+  dataset_name: PEMS04
+  num_of_weeks: 0
+  num_of_days: 0
+  num_of_hours: 1
+  start_epoch: 0
+  epochs: 110
+  learning_rate: 0.0001
+  num_of_vertices: 307
+  period: 288
+  points_per_hour: 12
+  num_for_predict: 12
+  len_input: 12
+  adj_filename: /home/zhenyu/program/TSF/methods/DSTAGNN/data/PEMS04/PEMS04.csv
+  graph_signal_matrix_filename: /home/zhenyu/program/TSF/methods/DSTAGNN/data/PEMS04/PEMS04.npz
+  stag_filename: /home/zhenyu/program/TSF/methods/DSTAGNN/data/PEMS04/stag_001_PEMS04.csv
+  strg_filename: /home/zhenyu/program/TSF/methods/DSTAGNN/data/PEMS04/strg_001_PEMS04.csv
