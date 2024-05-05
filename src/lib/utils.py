@@ -40,12 +40,13 @@ def data_prepare(configs):
 
     window_size = configs["window_size"]
 
-    # node_ratio
     train_nodes = torch.load(
         configs["processed_root"]
         + configs["dataset_name"]
         + "/train_nodes_"
         + str(configs["seed"])
+        + "_"
+        + str(configs["node_seed"])
         + "_"
         + str(configs["train_node_ratio"])
         + ".pt"
@@ -56,10 +57,11 @@ def data_prepare(configs):
         + "/val_nodes_"
         + str(configs["seed"])
         + "_"
+        + str(configs["node_seed"])
+        + "_"
         + str(configs["val_node_ratio"])
         + ".pt"
     )
-
     train_start_ends = [
         np.arange(i, i + window_size)
         for i in range(0, int(values.shape[-1] * train_ratio) - window_size)
@@ -89,7 +91,6 @@ def data_prepare(configs):
     train_values, val_values, test_values, scaler = normalize(
         train_values, val_values, test_values
     )
-
     print("data prapare done")
     return (
         train_values,
@@ -141,8 +142,12 @@ class DataTrimer:
         self.network_path = cfg["data_root"] + cfg["networks_name"]
 
     def __call__(self):
-        torch.manual_seed(self.random_seed)
-        random.seed(self.random_seed)
+        if self.cfg.get("node_seed", None) is not None:
+            torch.manual_seed(self.cfg["node_seed"])
+            random.seed(self.cfg["node_seed"])
+        else:
+            torch.manual_seed(self.random_seed)
+            random.seed(self.random_seed)
 
         adj = np.load(self.network_path, allow_pickle=True)
         adj = torch.tensor(adj, dtype=torch.float32)
@@ -160,7 +165,6 @@ class DataTrimer:
         )
         self.raw_graph = pd.read_csv(self.raw_graph_path, header=0).astype(int)
         self.raw_graph = self.raw_graph.iloc[:, :2].values
-        pdb.set_trace()
         # generate random index and make sure the graph based on the index is connected
         G = nx.Graph()
         G.add_edges_from(self.raw_graph)
@@ -215,16 +219,21 @@ class DataTrimer:
         # save train and val nodes with specific name
         train_nodes_path = (
             file_dir
-            + f"train_nodes_{self.random_seed}_{self.cfg['train_node_ratio']}.pt"
+            + f"train_nodes_{self.cfg['seed']}_{self.cfg['node_seed']}_{self.cfg['train_node_ratio']}.pt"
         )
         val_nodes_path = (
-            file_dir + f"val_nodes_{self.random_seed}_{self.cfg['val_node_ratio']}.pt"
+            file_dir
+            + f"val_nodes_{self.cfg['seed']}_{self.cfg['node_seed']}_{self.cfg['val_node_ratio']}.pt"
         )
         torch.save(train_nodes, train_nodes_path)
         torch.save(val_nodes, val_nodes_path)
         self.train_graph = adj[train_nodes, :][:, train_nodes]
         self.val_graph = adj[val_nodes, :][:, val_nodes]
         self.test_graph = adj[val_nodes, :][:, train_nodes]
+
+        # seed back
+        torch.manual_seed(self.random_seed)
+        random.seed(self.random_seed)
 
         return (
             [train_num_nodes, val_num_nodes, self.num_nodes],
@@ -266,75 +275,85 @@ class DataTrimer_STGODE:
         self.val_num_nodes = val_num_nodes
 
     def __call__(self):
-        torch.manual_seed(self.random_seed)
-        random.seed(self.random_seed)
+        if self.cfg.get("node_seed", None) is not None:
+            torch.manual_seed(self.cfg["node_seed"])
+            random.seed(self.cfg["node_seed"])
+            np.random.seed(self.cfg["node_seed"])
+        else:
+            torch.manual_seed(self.random_seed)
+            random.seed(self.random_seed)
+            np.random.seed(self.random_seed)
 
         self.se_edge_index = self.se.to_sparse()._indices().T
 
         self.sp_edge_index = self.sp.to_sparse()._indices().T
 
-        # -------------------------------------------------------Graph 1-------------------------------------------------------
-        # generate random index and make sure the graph based on the index is connected
-        G = nx.Graph()
-        G.add_edges_from(self.se_edge_index)
+        # # -------------------------------------------------------Graph 1-------------------------------------------------------
+        # # generate random index and make sure the graph based on the index is connected
+        # G = nx.Graph()
+        # G.add_edges_from(self.se_edge_index)
 
-        # Initialize the connected subgraph with a seed node
-        subgraph = nx.Graph()
-        seed_node = random.choice(list(G.nodes()))
-        subgraph.add_node(seed_node)
+        # # Initialize the connected subgraph with a seed node
+        # subgraph = nx.Graph()
+        # seed_node = random.choice(list(G.nodes()))
+        # subgraph.add_node(seed_node)
 
-        # Create a set to keep track of visited nodes in the subgraph
-        visited_nodes = set([seed_node])
-        unvisited_nodes = set(G.nodes()) - visited_nodes
+        # # Create a set to keep track of visited nodes in the subgraph
+        # visited_nodes = set([seed_node])
+        # unvisited_nodes = set(G.nodes()) - visited_nodes
 
-        # While the subgraph has fewer nodes than desired
-        while len(subgraph) < self.val_num_nodes:
-            if len(subgraph.nodes()) == self.train_num_nodes:
-                train_nodes = list(subgraph.nodes())
-            # Get a random node from the subgraph
-            random_node = random.choice(list(visited_nodes))
-            # Get the neighbors of the random node in the original graph
-            neighbors = list(G.neighbors(random_node))
+        # # While the subgraph has fewer nodes than desired
+        # while len(subgraph) < self.val_num_nodes:
+        #     if len(subgraph.nodes()) == self.train_num_nodes:
+        #         train_nodes = list(subgraph.nodes())
+        #     # Get a random node from the subgraph
+        #     random_node = random.choice(list(visited_nodes))
+        #     # Get the neighbors of the random node in the original graph
+        #     neighbors = list(G.neighbors(random_node))
 
-            # Filter out neighbors that are already in the subgraph
-            unvisited_neighbors = [n for n in neighbors if n not in subgraph]
+        #     # Filter out neighbors that are already in the subgraph
+        #     unvisited_neighbors = [n for n in neighbors if n not in subgraph]
 
-            # If there are unvisited neighbors, select one and add it to the subgraph
-            if unvisited_neighbors:
-                new_node = random.choice(unvisited_neighbors)
-                subgraph.add_node(new_node)
-                subgraph.add_edge(random_node, new_node)
-                visited_nodes.add(new_node)
-            else:
-                try:
-                    random_node = random.choice(list(unvisited_nodes))
-                    visited_nodes.add(random_node)
-                    subgraph.add_node(random_node)
-                    unvisited_nodes.remove(random_node)
-                except:
-                    print("The situation only happens when full running.")
-                    break
+        #     # If there are unvisited neighbors, select one and add it to the subgraph
+        #     if unvisited_neighbors:
+        #         new_node = random.choice(unvisited_neighbors)
+        #         subgraph.add_node(new_node)
+        #         subgraph.add_edge(random_node, new_node)
+        #         visited_nodes.add(new_node)
+        #     else:
+        #         try:
+        #             random_node = random.choice(list(unvisited_nodes))
+        #             visited_nodes.add(random_node)
+        #             subgraph.add_node(random_node)
+        #             unvisited_nodes.remove(random_node)
+        #         except:
+        #             print("The situation only happens when full running.")
+        #             break
 
-        val_nodes = list(subgraph.nodes())
-        if len(subgraph.nodes()) == self.train_num_nodes:
-            train_nodes = list(subgraph.nodes())
-        train_nodes.sort()
-        val_nodes.sort()
+        # val_nodes = list(subgraph.nodes())
+        # if len(subgraph.nodes()) == self.train_num_nodes:
+        #     train_nodes = list(subgraph.nodes())
+        # train_nodes.sort()
+        # val_nodes.sort()
 
         file_dir = self.cfg["processed_root"] + f"{self.dataset_name}/"
         if not os.path.exists(file_dir):
             os.makedirs(file_dir)
 
         # save train and val nodes with specific name
+        # save train and val nodes with specific name
         train_nodes_path = (
             file_dir
-            + f"train_nodes_{self.random_seed}_{self.cfg['train_node_ratio']}.pt"
+            + f"train_nodes_{self.cfg['seed']}_{self.cfg['node_seed']}_{self.cfg['train_node_ratio']}.pt"
         )
         val_nodes_path = (
-            file_dir + f"val_nodes_{self.random_seed}_{self.cfg['val_node_ratio']}.pt"
+            file_dir
+            + f"val_nodes_{self.cfg['seed']}_{self.cfg['node_seed']}_{self.cfg['val_node_ratio']}.pt"
         )
-        torch.save(train_nodes, train_nodes_path)
-        torch.save(val_nodes, val_nodes_path)
+        # torch.save(train_nodes, train_nodes_path)
+        # torch.save(val_nodes, val_nodes_path)
+        train_nodes = torch.load(train_nodes_path)
+        val_nodes = torch.load(val_nodes_path)
 
         self.se_train_graph = self.se[train_nodes, :][:, train_nodes]
         self.se_val_graph = self.se[val_nodes, :][:, val_nodes]
@@ -344,6 +363,10 @@ class DataTrimer_STGODE:
         self.sp_train_graph = self.sp[train_nodes, :][:, train_nodes]
         self.sp_val_graph = self.sp[val_nodes, :][:, val_nodes]
         self.sp_test_graph = self.sp
+
+        # seed back
+        torch.manual_seed(self.random_seed)
+        random.seed(self.random_seed)
 
         return (
             [self.train_num_nodes, self.val_num_nodes, self.num_nodes],
@@ -383,7 +406,7 @@ def get_metrics_full(y, y_pred):
     rmse_6 = torch.sqrt(torch.mean(torch.square(y[..., :6] - y_pred[..., :6])))
     rmse_3 = torch.sqrt(torch.mean(torch.square(y[..., :3] - y_pred[..., :3])))
     # masked mape
-    mask = y != 0
+    mask = y >= 1
     mape_12 = torch.mean(torch.abs((y - y_pred) / y)[mask])
     mape_6 = torch.mean(
         torch.abs((y[..., :6] - y_pred[..., :6]) / y[..., :6])[mask[..., :6]]
@@ -419,7 +442,7 @@ def get_metrics(y, y_pred):
     mae = torch.mean(torch.abs(y - y_pred))
     rmse = torch.sqrt(torch.mean(torch.square(y - y_pred)))
     # masked mape
-    mask = y != 0
+    mask = y >= 1
     mape = torch.mean(torch.abs((y - y_pred) / y)[mask])
     print("mae: {:.4f}, rmse: {:.4f}, mape: {:.4f}".format(mae, rmse, mape))
     return mae, rmse, mape

@@ -95,7 +95,7 @@ model:
   horizon: *horizon
 
 ##### augmentation
-aug_node: False
+aug_node: True
 aug_model:
   input_dim: *input_size
   hidden_dim: 64

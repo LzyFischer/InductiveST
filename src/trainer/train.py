@@ -20,6 +20,17 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
+def get_values(configs, key):
+    if "." in key:
+        keys = key.split(".")
+        value = configs
+        for k in keys:
+            value = value[k]
+    else:
+        value = configs[key]
+    return value
+
+
 class Trainer:
     def __init__(
         self,
@@ -30,15 +41,25 @@ class Trainer:
         test_iterator,
         is_eval=False,
     ):
-        if configs.get("description", None) is not None:
-            wandb_name = f"""{configs["model_name"]}_{configs["dataset_name"]}_gumbel{configs["gumbel_softmax"]}_mask{configs["mask_node_loss"]}_aug{configs['aug_node']}_{configs['description']}"""
+        if configs.get("wandb", True):
+            # str join
+            try:
+                name = ".".join(
+                    [f"{k}_{get_values(configs, k)}" for k in configs["wandb_name"]]
+                )
+            except:
+                name = f"model_name_{configs['model_name']}.dataset_name_{configs['dataset_name']}"
+            self.run = wandb.init(
+                project=configs.get("wandb_project", "InductiveST"),
+                config=configs,
+                name=name,
+            )
         else:
-            wandb_name = f"""{configs["model_name"]}_{configs["dataset_name"]}_gumbel{configs["gumbel_softmax"]}_mask{configs["mask_node_loss"]}_aug{configs['aug_node']}"""
-        self.run = wandb.init(
-            project="InductiveST",
-            config=configs,
-            name=wandb_name,
-        )
+            self.run = wandb.init(
+                project=configs.get("wandb_project", "InductiveST"),
+                config=configs,
+                mode="disabled",
+            )
 
         self.configs = configs
         self.device = configs["device"]
@@ -138,7 +159,15 @@ class Trainer:
         logger.info("Training finished")
 
         self.model.load_state_dict(self.best_model)
-        test_loss = self.test()
+        test_loss, metrics = self.test()
+        wandb.log(
+            {
+                "final_metrics": f"{metrics[6]:.2f} {metrics[7]:.2f} {metrics[8]*100:.2f} {metrics[3]:.2f} {metrics[4]:.2f} {metrics[5]*100:.2f} {metrics[0]:.2f} {metrics[1]:.2f} {metrics[2]*100:.2f}"
+            }
+        )
+        print(
+            f"{metrics[6]:.2f} {metrics[7]:.2f} {metrics[8]*100:.2f} {metrics[3]:.2f} {metrics[4]:.2f} {metrics[5]*100:.2f} {metrics[0]:.2f} {metrics[1]:.2f} {metrics[2]*100:.2f}"
+        )
         torch.save(
             self.model.state_dict(),
             os.path.join(self.configs["save_dir"], f"model_{test_loss}.pt"),

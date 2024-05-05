@@ -19,6 +19,7 @@ class VAE(nn.Module):
         super(VAE, self).__init__()
         self.encoder = Encoder(cfg)
         self.decoder = Decoder(cfg)
+        self.cfg = cfg
 
     def forward(self, x):
         # input size: B, N, C, L
@@ -32,6 +33,6 @@ class VAE(nn.Module):
         return z, mu, logvar
 
     def reparameterize(self, mu, logvar):
-        std = torch.exp(0.2 * logvar)
+        std = torch.exp(0.5 * logvar)
         eps = torch.randn_like(std)
-        return mu + eps * std
+        return mu + eps * std * self.cfg["vae"].get("variance", 0.1)

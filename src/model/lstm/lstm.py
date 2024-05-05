@@ -5,6 +5,7 @@ import numpy as np
 import pdb
 
 from ...lib.utils import DataTrimer
+from ..vae.vae import VAE
 
 
 class LSTM(nn.Module):
@@ -68,6 +69,29 @@ class LSTM(nn.Module):
         self.end_linear1 = nn.Linear(hidden_dim, end_dim)
         self.end_linear2 = nn.Linear(end_dim, horizon)
 
+        self.vae = VAE(cfg)
+
+        if not self.cfg.get("dynamic_mix", True):
+            self.mix_pair = (
+                torch.stack(
+                    [
+                        torch.multinomial(
+                            torch.ones(self.train_num_nodes),
+                            self.train_num_nodes,
+                            replacement=True,
+                        )[: int(self.train_num_nodes * 1)],
+                        torch.multinomial(
+                            torch.ones(self.train_num_nodes),
+                            self.train_num_nodes,
+                            replacement=True,
+                        )[: int(self.train_num_nodes * 1)],
+                    ],
+                    dim=0,
+                )
+                .to(torch.int64)
+                .to(self.cfg["device"])
+            )
+
     def forward(
         self, history_data: torch.Tensor, future_data: torch.Tensor, **kwargs
     ) -> torch.Tensor:
@@ -79,6 +103,94 @@ class LSTM(nn.Module):
         Returns:
             torch.Tensor: [B, L, N, 1]
         """
+        embedding = None
+        vae_loss = 0
+        B, N, C, L = history_data.shape
+        if self.cfg.get("dynamic_mix", True):
+            self.mix_pair = (
+                torch.stack(
+                    [
+                        torch.multinomial(
+                            torch.ones(self.train_num_nodes),
+                            self.train_num_nodes,
+                            replacement=True,
+                        )[: int(self.train_num_nodes * 1)],
+                        torch.multinomial(
+                            torch.ones(self.train_num_nodes),
+                            self.train_num_nodes,
+                            replacement=True,
+                        )[: int(self.train_num_nodes * 1)],
+                    ],
+                    dim=0,
+                )
+                .to(torch.int64)
+                .to(self.cfg["device"])
+            )
+
+        ## Augmented nodes
+        if self.cfg["aug_node"] and self.training:
+            # transform to hidden space
+            # vae = VAE(self.cfg).to(self.cfg["device"])
+            # vae(history_data)
+            full_data = torch.cat([history_data, future_data], dim=3)
+            B, N, C, W = full_data.shape
+            transformed_input = full_data.transpose(-1, -2).reshape(-1, W, C)
+            mu, logvar = self.vae.encoder(transformed_input)
+            embedding = self.vae.reparameterize(mu, logvar)
+
+            vae_loss += torch.mean(
+                -(self.cfg.get("vae_loss_weight", 2))
+                * torch.sum(1 + logvar - mu**2 - logvar.exp(), dim=1),
+                dim=0,
+            )
+
+            (_, hidden_shape) = embedding.shape
+            # mixup with self.mix_pair
+            aug_node = (
+                self.cfg["anchor_lambda"]
+                * embedding.reshape(B, N, -1)[:, self.mix_pair[0]]
+                + (1 - self.cfg["anchor_lambda"])
+                * embedding.reshape(B, N, -1)[:, self.mix_pair[1]]
+            )
+            aug_node = aug_node.reshape(-1, aug_node.shape[-1])
+            # transform to original space
+            aug_node = self.vae.decoder(aug_node)
+            aug_node = aug_node.transpose(-1, -2).reshape(B, N, C, W)
+
+            # similarity loss
+            if self.cfg.get("aug_loss", "MSE") == "MSE":
+                vae_loss += torch.nn.functional.mse_loss(
+                    full_data[:, self.mix_pair[0]], aug_node
+                )
+                vae_loss += torch.nn.functional.mse_loss(
+                    full_data[:, self.mix_pair[1]], aug_node
+                )
+            elif self.cfg.get("aug_loss", "MSE") == "Contrastive":
+                vae_loss += torch.nn.functional.cosine_similarity(
+                    full_data[:, self.mix_pair[0]], aug_node
+                ).sum()
+                vae_loss += torch.nn.functional.cosine_similarity(
+                    full_data[:, self.mix_pair[1]], aug_node
+                ).sum()
+
+                random_seq = torch.multinomial(
+                    torch.ones(self.train_num_nodes * B),
+                    self.train_num_nodes * B,
+                    replacement=True,
+                )[: int(self.train_num_nodes * B)]
+
+                conts_loss = torch.nn.functional.cosine_similarity(
+                    full_data.reshape(-1, C, W)[random_seq].reshape(
+                        B, self.mix_pair.shape[1], C, W
+                    ),
+                    aug_node,
+                ).sum()
+
+                vae_loss /= conts_loss
+            # combine with original nodes
+            history_data = torch.cat([history_data, aug_node[..., :L]], dim=1)
+            future_data = torch.cat([future_data, aug_node[..., L:]], dim=1)
+
         x = history_data.transpose(1, 2)
         b, c, n, l = x.shape
         x = x.transpose(1, 2).reshape(b * n, c, 1, l)
@@ -90,4 +202,4 @@ class LSTM(nn.Module):
         x = F.relu(self.end_linear1(x))
         x = self.end_linear2(x)
         x = x.reshape(b, n, l)
-        return x, None, None, None
+        return x, future_data, None, vae_loss

@@ -13,17 +13,17 @@ model_file: "model_92.84308624267578.pt"
 tolerance: 10 # now running like without early stopping
 batch_size: 16 # hyper
 device: &device "cuda"
-data_root: "/home/zhenyu/program/TSF/framework/BasicTS/datasets/raw_data/PEMS04/"
+data_root: "/home/zhenyu/program/TSF/framework/BasicTS/datasets/raw_data/PEMS08/"
 processed_root: "/home/zhenyu/program/TSF/framework/InductiveST/data/"
-dataset_name: "PEMS04"
-values_name: "PEMS04.npz"
-networks_name: &networks_name "adj_PEMS04.pkl"
+dataset_name: "PEMS08"
+values_name: "PEMS08.npz"
+networks_name: &networks_name "adj_PEMS08.pkl"
 optimizer: "Adam"
 input_size: &input_size 3 # 1 for univariate, 2 for multivariate
 dropout: 0
 mode: "train"
 split_ratio: [0.6, 0.2, 0.2]
-num_nodes: &num_nodes 307
+num_nodes: &num_nodes 170
 
 ##### for metrics 
 full_metrics: True
@@ -95,7 +95,7 @@ model:
   horizon: *horizon
 
 ##### augmentation
-aug_node: False
+aug_node: True
 aug_model:
   input_dim: *input_size
   hidden_dim: 64

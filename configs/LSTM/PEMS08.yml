@@ -47,6 +47,7 @@ drop_node_ratio: 0.1
 train_node_ratio: 0.1
 val_node_ratio: 0
 seed: 0
+node_seed: 0
 
 ##### for dicrepancy
 balanced_loss: False
@@ -57,10 +58,13 @@ is_vae: False
 vae_epochs: 0
 vae:
   input_dim: *input_size
-  hidden_dim: 64
-  latent_dim: 64
+  hidden_dim: 16
+  latent_dim: 16
   num_layers: 2
   dropout: 0.1
+  variance: 0.1
+vae_loss_weight: 2
+  
 
 ##### for mixup
 anchor_lambda: 0.5
@@ -98,3 +102,8 @@ aug_model:
   latent_dim: 64
   num_layers: 2
   dropout: 0.1
+
+##### wandb
+wandb: True
+wandb_project: "InductiveST"
+wandb_name: [model_name, dataset_name, seed, node_seed]

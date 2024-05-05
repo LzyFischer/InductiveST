@@ -13,4 +13,5 @@ src/model/stgode/datasets
 TODO.md
 *.png
 *.ipynb
-*.sh
+# *.sh
+*.log

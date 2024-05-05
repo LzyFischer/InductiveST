@@ -20,10 +20,11 @@ values_name: "PEMS08.npz"
 networks_name: &networks_name "adj_PEMS08.pkl"
 optimizer: "Adam"
 input_size: &input_size 3 # 1 for univariate, 2 for multivariate
-dropout: 0
+dropout: 0.2
 mode: "train"
 split_ratio: [0.6, 0.2, 0.2]
 num_nodes: &num_nodes 170
+
 
 ##### for metrics 
 full_metrics: True
@@ -38,7 +39,7 @@ batch_size: 16 # hyper
 lr: 0.002
 weight_decay: 0.0001
 epochs: 100
-mask_node_loss: True
+mask_node_loss: False
 mask_node_ratio: 0.5
 drop_node: False
 drop_node_ratio: 0.1
@@ -47,6 +48,7 @@ drop_node_ratio: 0.1
 train_node_ratio: 0.1
 val_node_ratio: 0
 seed: 0
+node_seed: 0
 
 ##### for dicrepancy
 balanced_loss: False
@@ -55,23 +57,27 @@ embedding_loss: False
 #### VAE
 is_vae: False
 vae_epochs: 0
+vae_loss_weight: 2
 vae:
   input_dim: *input_size
   hidden_dim: 64
   latent_dim: 64
   num_layers: 2
   dropout: 0.1
+  variance: 0.1
+
 
 ##### for mixup
 anchor_lambda: 0.5
+dynamic_mix: True
 
 ##### for graph augmentation methods mainly
 graph_learning: True
-dynamic_graph: False
+dynamic_graph: True
 graph:
   hidden_dim: 64
   node2edge_type: cosine
-sparse_threshold: 0.6
+sparse_threshold: 0.9
 random_graph: False
 gumbel_softmax: True
 gumbel_tau: 1
@@ -99,3 +105,8 @@ aug_model:
   latent_dim: 64
   num_layers: 2
   dropout: 0.1
+
+##### wandb
+wandb: True
+wandb_project: "InductiveST"
+wandb_name: [model_name, dataset_name, seed, node_seed]

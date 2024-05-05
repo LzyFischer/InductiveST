@@ -221,6 +221,24 @@ parser.add_argument(
     default=None,
     help="Activate nice mode.",
 )
+parser.add_argument(
+    "-wb",
+    "--wandb",
+    type=str2bool,
+    nargs="?",
+    const=True,
+    default=None,
+    help="Activate nice mode.",
+)
+
+parser.add_argument("-lr", "--lr", type=float, required=False, default=None)
+parser.add_argument("-wd", "--weight_decay", type=float, required=False, default=None)
+parser.add_argument("-vv", "--vae_variance", type=float, required=False, default=None)
+parser.add_argument(
+    "-vw", "--vae_loss_weight", type=float, required=False, default=None
+)
+parser.add_argument("-ns", "--node_seed", type=int, required=False, default=None)
+
 
 """arg config"""
 args = parser.parse_args()
@@ -228,6 +246,8 @@ configs_path = args.configs_path
 configs = yaml.safe_load(open(configs_path))
 if args.seed is not None:
     configs["seed"] = args.seed
+if args.node_seed is not None:
+    configs["node_seed"] = args.node_seed
 if args.train_node_ratio is not None:
     configs["train_node_ratio"] = args.train_node_ratio
 if args.model_name is not None:
@@ -244,10 +264,19 @@ if args.window_size is not None:
     configs["window_size"] = args.window_size
 if args.horizon is not None:
     configs["horizon"] = args.horizon
-else:
-    configs["device"] = auto_select_device()
-configs["mode"] = args.mode
+if args.wandb is not None:
+    configs["wandb"] = args.wandb
+if args.lr is not None:
+    configs["lr"] = args.lr
+if args.weight_decay is not None:
+    configs["weight_decay"] = args.weight_decay
+if args.vae_variance is not None:
+    configs["vae"]["variance"] = args.vae_variance
+if args.vae_loss_weight is not None:
+    configs["vae_loss_weight"] = args.vae_loss_weight
 
+
+configs["mode"] = args.mode
 """"""
 
 """initialze the random seeds"""

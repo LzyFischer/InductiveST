@@ -120,6 +120,27 @@ class STGCN_n(nn.Module):
 
         self.graph_learner = SimLearner(cfg)
 
+        if not self.cfg.get("dynamic_mix", True):
+            self.mix_pair = (
+                torch.stack(
+                    [
+                        torch.multinomial(
+                            torch.ones(self.train_num_nodes),
+                            self.train_num_nodes,
+                            replacement=True,
+                        )[: int(self.train_num_nodes * 1)],
+                        torch.multinomial(
+                            torch.ones(self.train_num_nodes),
+                            self.train_num_nodes,
+                            replacement=True,
+                        )[: int(self.train_num_nodes * 1)],
+                    ],
+                    dim=0,
+                )
+                .to(torch.int64)
+                .to(self.cfg["device"])
+            )
+
     def initilization(self):
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
@@ -249,26 +270,27 @@ class STGCN_n(nn.Module):
             4. randomly selected pair of nodes to mix in hidden space
         2. learn with augmented nodes
         """
-
-        self.mix_pair = (
-            torch.stack(
-                [
-                    torch.multinomial(
-                        torch.ones(self.train_num_nodes),
-                        self.train_num_nodes,
-                        replacement=True,
-                    )[: int(self.train_num_nodes * 1)],
-                    torch.multinomial(
-                        torch.ones(self.train_num_nodes),
-                        self.train_num_nodes,
-                        replacement=True,
-                    )[: int(self.train_num_nodes * 1)],
-                ],
-                dim=0,
+        if self.cfg.get("dynamic_mix", True):
+            self.mix_pair = (
+                torch.stack(
+                    [
+                        torch.multinomial(
+                            torch.ones(self.train_num_nodes),
+                            self.train_num_nodes,
+                            replacement=True,
+                        )[: int(self.train_num_nodes * 1)],
+                        torch.multinomial(
+                            torch.ones(self.train_num_nodes),
+                            self.train_num_nodes,
+                            replacement=True,
+                        )[: int(self.train_num_nodes * 1)],
+                    ],
+                    dim=0,
+                )
+                .to(torch.int64)
+                .to(self.cfg["device"])
             )
-            .to(torch.int64)
-            .to(self.cfg["device"])
-        )
+
         ## Augmented nodes
         if self.cfg["aug_node"] and self.training:
             # transform to hidden space
@@ -281,7 +303,9 @@ class STGCN_n(nn.Module):
             embedding = self.vae.reparameterize(mu, logvar)
 
             vae_loss += torch.mean(
-                -2 * torch.sum(1 + logvar - mu**2 - logvar.exp(), dim=1), dim=0
+                -(self.cfg.get("vae_loss_weight", 2))
+                * torch.sum(1 + logvar - mu**2 - logvar.exp(), dim=1),
+                dim=0,
             )
 
             (_, hidden_shape) = embedding.shape

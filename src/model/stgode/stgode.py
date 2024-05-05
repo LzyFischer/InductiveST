@@ -176,7 +176,6 @@ class STGODE(nn.Module):
         num_features = cfg["model"]["num_features"]
         num_timesteps_input = cfg["model"]["window_size"] - cfg["model"]["horizon"]
         num_timesteps_output = cfg["model"]["horizon"]
-
         # spatial graph
         self.sp_blocks = nn.ModuleList(
             [
