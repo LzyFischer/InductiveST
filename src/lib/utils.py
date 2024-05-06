@@ -157,9 +157,7 @@ class DataTrimer:
         self.train_num_nodes = train_num_nodes
         self.val_num_nodes = val_num_nodes
 
-        self.raw_data_path = (
-            "/home/zhenyu/program/TSF/framework/BasicTS/datasets/raw_data/"
-        )
+        self.raw_data_path = "datasets/raw_data/"
         self.raw_graph_path = (
             self.raw_data_path + f"{self.dataset_name}/{self.dataset_name}.csv"
         )

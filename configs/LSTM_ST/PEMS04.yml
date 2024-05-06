@@ -13,8 +13,8 @@ model_file: "model_92.84308624267578.pt"
 tolerance: 10 # now running like without early stopping
 batch_size: 16 # hyper
 device: &device "cuda"
-data_root: "/home/zhenyu/program/TSF/framework/BasicTS/datasets/raw_data/PEMS04/"
-processed_root: "/home/zhenyu/program/TSF/framework/InductiveST/data/"
+data_root: "datasets/raw_data/PEMS04/"
+processed_root: "data/"
 dataset_name: "PEMS04"
 values_name: "PEMS04.npz"
 networks_name: &networks_name "adj_PEMS04.pkl"
