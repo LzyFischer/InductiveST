@@ -1,4 +1,4 @@
-for model_name in STGCN_ST STGCN LSTM STGODE
+for model_name in  LSTM STGODE # STGCN_ST STGCN
 do
     for dataset_name in PEMS04 PEMS08 PEMS03
     do
@@ -68,7 +68,7 @@ do
                         --train_node_ratio $train_node_ratio  > $output_file 2>&1 &
 
                     # pid=$!
-                    sleep 10
+                    sleep 15
                 done
             done
         done
