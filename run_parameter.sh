@@ -1,8 +1,8 @@
-for model_name in STGODE
+for model_name in STGCN_ST STGCN LSTM STGODE
 do
-    for dataset_name in PEMS03
+    for dataset_name in PEMS04 PEMS08 PEMS03
     do
-        for seed in 1
+        for train_node_ratio in 0.05 0.25 0.75
         do
             for lr in 0.002
             do
@@ -48,6 +48,7 @@ do
 
                     if [ -z "$chosen_gpu" ]; then
                         echo "No available GPUs or unable to determine GPU load."
+                        # exit 1
                         chosen_gpu=3
                     fi
 
@@ -57,23 +58,24 @@ do
                     export CUDA_VISIBLE_DEVICES=$chosen_gpu
 
 
-                    info="${model_name}_${dataset_name}_seed${seed}_nodeseed${node_seed}"
+                    info="${model_name}_${dataset_name}_ratio_${train_node_ratio}"
 
                     echo "Start ${info}"
                     output_file="log/${info}.log"
 
                     nohup python main.py \
                         --config "configs/${model_name}/${dataset_name}.yml" \
-                        --seed $seed  > $output_file 2>&1 &
+                        --wandb_name model_name dataset_name train_node_ratio \
+                        --train_node_ratio $train_node_ratio  > $output_file 2>&1 &
 
                     # pid=$!
                     sleep 10
                 done
             done
         done
-        # pid=$!
-        # wait $pid
     done
+    pid=$!
+    wait $pid
 done
 
 

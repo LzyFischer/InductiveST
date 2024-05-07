@@ -238,6 +238,7 @@ parser.add_argument(
     "-vw", "--vae_loss_weight", type=float, required=False, default=None
 )
 parser.add_argument("-ns", "--node_seed", type=int, required=False, default=None)
+parser.add_argument("-wn", "--wandb_name", nargs='+', required=False, default=None)
 
 
 """arg config"""
@@ -266,6 +267,8 @@ if args.horizon is not None:
     configs["horizon"] = args.horizon
 if args.wandb is not None:
     configs["wandb"] = args.wandb
+if args.wandb_name is not None:
+    configs['wandb_name'] = args.wandb_name
 if args.lr is not None:
     configs["lr"] = args.lr
 if args.weight_decay is not None:
@@ -274,7 +277,6 @@ if args.vae_variance is not None:
     configs["vae"]["variance"] = args.vae_variance
 if args.vae_loss_weight is not None:
     configs["vae_loss_weight"] = args.vae_loss_weight
-
 
 configs["mode"] = args.mode
 """"""
