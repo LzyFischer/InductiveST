@@ -1,4 +1,4 @@
-for model_name in STGCN_ST STGCN LSTM STGODE
+for model_name in STGCN LSTM STGODE #STGCN_ST 
 do
     for dataset_name in PEMS04 PEMS08 PEMS03
     do
