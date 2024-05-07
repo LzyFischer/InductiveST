@@ -10,7 +10,8 @@ import pickle
 import random
 from scipy.sparse.linalg import eigs
 import subprocess
-from frstl import fast_robustSTL
+
+# from frstl import fast_robustSTL
 
 from matplotlib import pyplot as plt
 import pdb

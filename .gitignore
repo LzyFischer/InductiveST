@@ -7,7 +7,7 @@ draw
 
 # data
 data
-src/model/stgode/datasets
+# src/model/stgode/datasets
 
 # local info
 TODO.md
