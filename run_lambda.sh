@@ -1,8 +1,8 @@
-for model_name in STGCN_ST STGCN LSTM STGODE
+for model_name in STGCN_ST
 do
-    for dataset_name in PEMS04 PEMS08 PEMS03
+    for dataset_name in PEMS04 PEMS08 PEMS03 
     do
-        for train_node_ratio in 0.05 0.25 0.75
+        for anchor_lambda in 0.4 0.3 0.2 0.1 
         do
             for lr in 0.002
             do
@@ -58,24 +58,24 @@ do
                     export CUDA_VISIBLE_DEVICES=$chosen_gpu
 
 
-                    info="${model_name}_${dataset_name}_ratio_${train_node_ratio}"
+                    info="${model_name}_${dataset_name}_lambda_${anchor_lambda}"
 
                     echo "Start ${info}"
                     output_file="log/${info}.log"
 
                     nohup python main.py \
                         --config "configs/${model_name}/${dataset_name}.yml" \
-                        --wandb_name model_name dataset_name train_node_ratio \
-                        --train_node_ratio $train_node_ratio  > $output_file 2>&1 &
+                        --wandb_name model_name dataset_name anchor_lambda \
+                        --anchor_lambda $anchor_lambda  > $output_file 2>&1 &
 
                     # pid=$!
                     sleep 10
                 done
             done
         done
+        pid=$!
+        wait $pid
     done
-    pid=$!
-    wait $pid
 done
 
 
