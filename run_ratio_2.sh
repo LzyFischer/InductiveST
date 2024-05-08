@@ -65,6 +65,7 @@ do
 
                     nohup python main.py \
                         --config "configs/${model_name}/${dataset_name}.yml" \
+                        --wandb_name model_name dataset_name train_node_ratio \
                         --train_node_ratio $train_node_ratio  > $output_file 2>&1 &
 
                     # pid=$!
