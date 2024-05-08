@@ -1,6 +1,6 @@
 for model_name in STGCN_ST
 do
-    for dataset_name in PEMS04 PEMS08 PEMS03 
+    for dataset_name in PEMS04 PEMS03 
     do
         for anchor_lambda in 0.4 0.3 0.2 0.1 
         do

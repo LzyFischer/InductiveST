@@ -90,6 +90,8 @@ model:
 
 ##### augmentation
 aug_node: True
+sim_loss: True
+fst_loss: True
 aug_model:
   input_dim: *input_size
   hidden_dim: 64

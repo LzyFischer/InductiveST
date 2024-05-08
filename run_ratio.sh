@@ -73,9 +73,9 @@ do
                 done
             done
         done
+        pid=$!
+        wait $pid
     done
-    pid=$!
-    wait $pid
 done
 
 

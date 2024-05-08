@@ -322,35 +322,36 @@ class STGCN_n(nn.Module):
             aug_node = aug_node.transpose(-1, -2).reshape(B, N, C, W)
 
             # similarity loss
-            if self.cfg.get("aug_loss", "MSE") == "MSE":
-                vae_loss += torch.nn.functional.mse_loss(
-                    full_data[:, self.mix_pair[0]], aug_node
-                )
-                vae_loss += torch.nn.functional.mse_loss(
-                    full_data[:, self.mix_pair[1]], aug_node
-                )
-            elif self.cfg.get("aug_loss", "MSE") == "Contrastive":
-                vae_loss += torch.nn.functional.cosine_similarity(
-                    full_data[:, self.mix_pair[0]], aug_node
-                ).sum()
-                vae_loss += torch.nn.functional.cosine_similarity(
-                    full_data[:, self.mix_pair[1]], aug_node
-                ).sum()
+            if self.cfg.get('sim_loss', False):
+                if self.cfg.get("aug_loss", "MSE") == "MSE":
+                    vae_loss += torch.nn.functional.mse_loss(
+                        full_data[:, self.mix_pair[0]], aug_node
+                    )
+                    vae_loss += torch.nn.functional.mse_loss(
+                        full_data[:, self.mix_pair[1]], aug_node
+                    )
+                elif self.cfg.get("aug_loss", "MSE") == "Contrastive":
+                    vae_loss += torch.nn.functional.cosine_similarity(
+                        full_data[:, self.mix_pair[0]], aug_node
+                    ).sum()
+                    vae_loss += torch.nn.functional.cosine_similarity(
+                        full_data[:, self.mix_pair[1]], aug_node
+                    ).sum()
 
-                random_seq = torch.multinomial(
-                    torch.ones(self.train_num_nodes * B),
-                    self.train_num_nodes * B,
-                    replacement=True,
-                )[: int(self.train_num_nodes * B)]
+                    random_seq = torch.multinomial(
+                        torch.ones(self.train_num_nodes * B),
+                        self.train_num_nodes * B,
+                        replacement=True,
+                    )[: int(self.train_num_nodes * B)]
 
-                conts_loss = torch.nn.functional.cosine_similarity(
-                    full_data.reshape(-1, C, W)[random_seq].reshape(
-                        B, self.mix_pair.shape[1], C, W
-                    ),
-                    aug_node,
-                ).sum()
+                    conts_loss = torch.nn.functional.cosine_similarity(
+                        full_data.reshape(-1, C, W)[random_seq].reshape(
+                            B, self.mix_pair.shape[1], C, W
+                        ),
+                        aug_node,
+                    ).sum()
 
-                vae_loss /= conts_loss
+                    vae_loss /= conts_loss
             # combine with original nodes
             history_data = torch.cat([history_data, aug_node[..., :L]], dim=1)
             future_data = torch.cat([future_data, aug_node[..., L:]], dim=1)
