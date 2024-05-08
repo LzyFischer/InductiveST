@@ -1,8 +1,8 @@
-for model_name in  LSTM STGODE # STGCN_ST STGCN
+for model_name in STGCN_ST 
 do
     for dataset_name in PEMS04 PEMS08 PEMS03
     do
-        for train_node_ratio in 0.5 1
+        for train_node_ratio in 0.05 0.25
         do
             for lr in 0.002
             do
@@ -65,6 +65,7 @@ do
 
                     nohup python main.py \
                         --config "configs/${model_name}/${dataset_name}.yml" \
+                        --wandb_name model_name dataset_name train_node_ratio \
                         --train_node_ratio $train_node_ratio  > $output_file 2>&1 &
 
                     # pid=$!
