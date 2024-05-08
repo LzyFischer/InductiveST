@@ -240,7 +240,24 @@ parser.add_argument(
 parser.add_argument("-ns", "--node_seed", type=int, required=False, default=None)
 parser.add_argument("-wn", "--wandb_name", nargs="+", required=False, default=None)
 parser.add_argument("-al", "--anchor_lambda", type=float, required=False, default=None)
-
+parser.add_argument(
+    "-sl",
+    "--sim_loss",
+    type=str2bool,
+    nargs="?",
+    const=True,
+    default=None,
+    help="Similarity loss.",
+)
+parser.add_argument(
+    "-fl",
+    "--fst_loss",
+    type=str2bool,
+    nargs="?",
+    const=True,
+    default=None,
+    help="Forecast loss.",
+)
 
 """arg config"""
 args = parser.parse_args()
@@ -280,6 +297,10 @@ if args.vae_loss_weight is not None:
     configs["vae_loss_weight"] = args.vae_loss_weight
 if args.anchor_lambda is not None:
     configs["anchor_lambda"] = args.anchor_lambda
+if args.sim_loss is not None:
+    configs['sim_loss'] = args.sim_loss
+if args.fst_loss is not None:
+    configs['fst_loss'] = args.fst_loss
 
 configs["mode"] = args.mode
 """"""

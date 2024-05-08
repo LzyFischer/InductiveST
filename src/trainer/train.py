@@ -238,12 +238,9 @@ class Trainer:
 
                 y = y[:, values.shape[1] :]
                 y_pred = y_pred[:, values.shape[1] :]
-                iter_loss += self.get_mae(y=y[..., 0, :], y_pred=y_pred)
+                if self.configs.get('fst_loss', False):
+                    iter_loss += self.get_mae(y=y[..., 0, :], y_pred=y_pred)
                 # regularization on vae loss
-                weight_vae = torch.cat(
-                    [x.view(-1) for x in self.model.vae.parameters()]
-                )
-                iter_loss += 0 * torch.norm(weight_vae, p=2)
                 iter_loss.backward()
                 # torch.nn.utils.clip_grad_norm_(self.model.parameters(), 5.0)
                 self.opt.step()

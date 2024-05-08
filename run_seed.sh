@@ -1,8 +1,8 @@
-for model_name in STGCN_ST
+for model_name in STGODE
 do
-    for dataset_name in PEMS03 PEMS08
+    for dataset_name in  PEMS08
     do
-        for seed in 0 1 2
+        for seed in 1 2 
         do
             for lr in 0.002
             do
