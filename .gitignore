@@ -10,7 +10,7 @@ data
 # src/model/stgode/datasets
 
 # local info
-TODO.md
+# TODO.md
 *.png
 *.ipynb
 # *.sh
