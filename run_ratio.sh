@@ -2,7 +2,7 @@ for model_name in STGCN_ST
 do
     for dataset_name in PEMS04 PEMS08 PEMS03
     do
-        for train_node_ratio in 0.05 0.25
+        for train_node_ratio in 0.5 0.75 0.1
         do
             for lr in 0.002
             do
