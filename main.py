@@ -90,7 +90,6 @@ class Main:
         return val_loss
 
     def train(self):
-        exit()
         trainer = self.trainer(
             configs=self.configs,
             model=self.model,
