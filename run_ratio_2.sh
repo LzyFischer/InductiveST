@@ -1,10 +1,10 @@
 for model_name in STGODE #STGCN_ST 
 do
-    for dataset_name in PEMS03
+    for dataset_name in PEMS03 
     do
-        for train_node_ratio in 0.05 
+        for train_node_ratio in 0.1
         do
-            for seed in  6 7 8 9 
+            for seed in 6 7 8
             do
                 for wd in 0.0001 
                 do
@@ -69,14 +69,17 @@ do
                         --seed $seed \
                         --train_node_ratio $train_node_ratio  > $output_file 2>&1 &
 
-                    # pid=$!
-                    sleep 10
+                    pid=$!
+                    wait $pid
+                    # sleep 10
                 done
             done
+            # pid=$!
+            # wait $pid
         done
     done
-    pid=$!
-    wait $pid
+    # pid=$!
+    # wait $pid
 done
 
 

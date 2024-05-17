@@ -1,8 +1,8 @@
 for model_name in STGODE
 do
-    for dataset_name in  PEMS08
+    for dataset_name in PEMS03 
     do
-        for seed in 1 2 
+        for seed in 6 7 8 9
         do
             for lr in 0.002
             do
@@ -71,8 +71,8 @@ do
                 done
             done
         done
-        # pid=$!
-        # wait $pid
+        pid=$!
+        wait $pid
     done
 done
 

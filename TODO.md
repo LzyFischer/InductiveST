@@ -1,3 +1,52 @@
+# 5.13
+## TODO
+### Exp
+1. ablation
+   1. gumbel pems03
+2. ratio
+   1. stgcn 0.05 pems04
+3. main
+   1. stgode pems03
+
+
+# 5.11
+## TODO
+### Exp
+1. main
+   1. stgcn pems03 seed 0 1 2
+   2. stgode pems03
+2. ablation
+   1. gumbel false pems03
+   2. w/o aug pems08
+3. ratio
+   1. stgode 0.05 0.25 pems03 
+   2. stgcn 0.05 pems04 
+
+
+
+
+# 5.9
+## TODO
+### Exp
+1. hyper: pems03 0.4 lambada | sparse: pems04 0.1 0.7 pems03 0.7
+2. gumbel false pems03
+3. main: stgode 03 three new | stgcn ours 03 / 08
+4. ratio: ours 1 | lstm 0.25 0.75 04 | ours 0.5 03
+### New Exp
+1. hyper: sparse: pems04 0.1 0.7 pems03 0.7
+2. ratio: ours 1 pems043 | stgode 0.05 03
+### Writing
+1. lambda better illustration
+2. 强调limited nodes
+3. 给一个city的例子除了covid
+4. 是否需要limitation section
+5. 关于学一个graph structure的故事不够好，为什么要学？学为什么能解决hetero的问题？
+
+
+
+
+
+
 # 5.8
 ## TODO
 ### EXP
@@ -7,7 +56,7 @@
 4. sparsity: pems04 pems03
 5. ablation
 ### New Exp
-1. task: ours 0.5 0.75 0.1 | stgode 0.05 pems03| 04: lstm stgcn | 08: stgcn | 03: stgcn
+1. task: ours 0.5 0.75 0.1 | stgode 0.05 pems03| |0.75 04: lstm stgcn | 08: stgcn | 03: stgcn
 2. ablation: w/o sim loss 08/03 | w/o aug | original graph
 3. hyper: pems03 all 
 4. main: pems03 stgode stgcn(ours) | pems08 stgcn(ours) seed 2
@@ -15,6 +64,8 @@
 1. lambda better illustration
 2. 强调limited nodes
 3. 给一个city的例子除了covid
+4. 是否需要limitation section
+
 
 
 
