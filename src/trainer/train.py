@@ -7,14 +7,14 @@ from ..loader.data_iterator import DataIterator
 from ..lib.utils import get_metrics, get_metrics_full
 import torch.nn as nn
 import torch.optim.lr_scheduler as lr_scheduler
-from tensorboardX import SummaryWriter
+# from tensorboardX import SummaryWriter
 from src.model.stgcn_n.stgcn import STGCN_n
 import pdb
 import copy
 import wandb
 
 
-writer = SummaryWriter(flush_secs=5)
+# writer = SummaryWriter(flush_secs=5)
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -262,7 +262,7 @@ class Trainer:
             n_iter += 1
             epoch_loss += iter_loss.item()
         epoch_loss /= n_iter
-        writer.add_scalar("Loss/train", epoch_loss, epoch)
+        # writer.add_scalar("Loss/train", epoch_loss, epoch)
         logger.info("Epoch: {}, Loss: {}".format(epoch, epoch_loss))
         # wandb.log({"train_loss": epoch_loss})
         return epoch_loss
@@ -331,7 +331,7 @@ class Trainer:
         loss = self.get_mae(y=y_trues[..., 0, :], y_pred=y_preds)
         logger.info("Eval loss: {}".format(loss))
         get_metrics(y_trues[..., 0, :], y_preds)
-        writer.add_scalar("Loss/eval", loss, epoch)
+        # writer.add_scalar("Loss/eval", loss, epoch)
         return loss
 
     def test(self):

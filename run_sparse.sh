@@ -1,10 +1,10 @@
 for model_name in STGCN_ST
 do
-    for sparse_threshold in 0.7 0.5 0.3 0.1 1 0.8 0.6
+    for sparse_threshold in 0.1 0.7
     do
-        for dataset_name in PEMS04 PEMS08 PEMS03 
+        for dataset_name in PEMS04 PEMS08
         do
-            for lr in 0.002
+            for seed in 1 2 
             do
                 for wd in 0.0001 
                 do
@@ -66,15 +66,16 @@ do
                     nohup python main.py \
                         --config "configs/${model_name}/${dataset_name}.yml" \
                         --wandb_name model_name dataset_name sparse_threshold \
+                        --seed $seed \
                         --sparse_threshold $sparse_threshold  > $output_file 2>&1 &
 
                     # pid=$!
                     sleep 10
                 done
             done
+            pid=$!
+            wait $pid
         done
-        pid=$!
-        wait $pid
     done
 done
 

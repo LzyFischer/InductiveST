@@ -73,6 +73,7 @@ sparse_threshold: 1
 random_graph: False
 gumbel_softmax: True
 gumbel_tau: 1
+no_graph: False
 
 ##### decomposition (still working)
 rstl: True

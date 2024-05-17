@@ -1,8 +1,8 @@
 for model_name in STGCN_ST
 do
-    for dataset_name in PEMS04 PEMS03 
+    for dataset_name in PEMS03 
     do
-        for anchor_lambda in 0.4 0.3 0.2 0.1 
+        for anchor_lambda in 0.4 
         do
             for lr in 0.002
             do
@@ -68,13 +68,12 @@ do
                         --wandb_name model_name dataset_name anchor_lambda \
                         --anchor_lambda $anchor_lambda  > $output_file 2>&1 &
 
-                    # pid=$!
+                    pid=$!
+                    wait $pid
                     sleep 10
                 done
             done
         done
-        pid=$!
-        wait $pid
     done
 done
 
