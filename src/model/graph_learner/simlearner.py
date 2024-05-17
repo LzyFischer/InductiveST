@@ -74,7 +74,9 @@ class SimLearner(nn.Module):
             similarity_matrix = F.gumbel_softmax(
                 similarity_matrix, tau=self.cfg["gumbel_tau"], hard=True
             )[..., 0]
-
+        
+        if self.cfg.get('no_graph', False):
+            similarity_matrix = torch.zeros_like(similarity_matrix)
         # plt.imshow(similarity_matrix.cpu().detach().numpy())
         # plt.savefig("similarity_matrix.png")
 
