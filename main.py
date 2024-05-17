@@ -90,6 +90,7 @@ class Main:
         return val_loss
 
     def train(self):
+        exit()
         trainer = self.trainer(
             configs=self.configs,
             model=self.model,
@@ -258,6 +259,43 @@ parser.add_argument(
     default=None,
     help="Forecast loss.",
 )
+parser.add_argument(
+    "-ag",
+    "--aug_node",
+    type=str2bool,
+    nargs="?",
+    const=True,
+    default=None,
+    help="node augmentation",
+)
+parser.add_argument(
+    "-gl",
+    "--graph_learning",
+    type=str2bool,
+    nargs="?",
+    const=True,
+    default=None,
+    help="whether use original graph",
+)
+parser.add_argument(
+    "-ng",
+    "--no_graph",
+    type=str2bool,
+    nargs="?",
+    const=True,
+    default=None,
+    help="whether no graph",
+)
+parser.add_argument(
+    "-gs",
+    "--gumbel_softmax",
+    type=str2bool,
+    nargs="?",
+    const=True,
+    default=None,
+    help="whether sim graph",
+)
+
 
 """arg config"""
 args = parser.parse_args()
@@ -301,6 +339,14 @@ if args.sim_loss is not None:
     configs['sim_loss'] = args.sim_loss
 if args.fst_loss is not None:
     configs['fst_loss'] = args.fst_loss
+if args.aug_node is not None:
+    configs['aug_node'] = args.aug_node
+if args.graph_learning is not None:
+    configs['graph_learning'] = args.graph_learning
+if args.no_graph is not None:
+    configs['no_graph'] = args.no_graph
+if args.gumbel_softmax is not None:
+    configs['gumbel_softmax'] = args.gumbel_softmax
 
 configs["mode"] = args.mode
 """"""
