@@ -1,10 +1,10 @@
 for model_name in STGCN
 do
-    for dataset_name in PEMS03
+    for dataset_name in PEMS08
     do
-        for train_node_ratio in 0.75
+        for node_seed in 1 2
         do
-            for seed in 7 8
+            for seed in 4 5
             do
                 for wd in 0.0001 
                 do
@@ -58,19 +58,18 @@ do
                     export CUDA_VISIBLE_DEVICES=$chosen_gpu
 
 
-                    info="${model_name}_${dataset_name}_ratio_${train_node_ratio}"
+                    info="${model_name}_${dataset_name}_seed${seed}_nodeseed${node_seed}"
 
                     echo "Start ${info}"
                     output_file="log/${info}.log"
 
                     nohup python main.py \
                         --config "configs/${model_name}/${dataset_name}.yml" \
-                        --wandb_name model_name dataset_name train_node_ratio \
                         --seed $seed \
-                        --train_node_ratio $train_node_ratio  > $output_file 2>&1 &
-
+                        --wandb_name model_name dataset_name node_seed seed \
+                        --node_seed $node_seed  > $output_file 2>&1 &
                     # pid=$!
-                    sleep 15
+                    sleep 10
                 done
             done
             pid=$!

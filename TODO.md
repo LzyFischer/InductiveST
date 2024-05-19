@@ -1,3 +1,20 @@
+# 5.18
+## TODO
+### Exp
+1. baseline node
+   1. PEMS03
+      1. st-fit node seed 0 1 2
+      2. stgode 
+   2. PEMS04
+      1. stgode 30 - 50, node seed 0 1 2
+   3. PEMS08
+      1. stgode 
+      2. stgcn
+2. task
+   1. PEMS03 stgode
+3. hyper
+
+
 # 5.13
 ## TODO
 ### Exp
