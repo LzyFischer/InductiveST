@@ -4,7 +4,7 @@ do
     do
         for node_seed in 1 2
         do
-            for lr in 0.002
+            for seed in 6 7 8
             do
                 for wd in 0.0001 
                 do
@@ -65,8 +65,9 @@ do
 
                     nohup python main.py \
                         --config "configs/${model_name}/${dataset_name}.yml" \
+                        --seed $seed \
+                        --wandb_name model_name dataset_name node_seed seed \
                         --node_seed $node_seed  > $output_file 2>&1 &
-
                     # pid=$!
                     sleep 10
                 done
