@@ -15,9 +15,7 @@ from src.lib.utils import data_prepare, auto_select_device
 
 from src.model.stgcn_n.stgcn import STGCN_n
 from src.model.lstm.lstm import LSTM
-from src.model.mlp.mlp import MLP
 from src.model.hi.hi import HI
-from src.model.nbeats.nbeats import NBeats
 from src.model.stgode.stgode import STGODE
 
 
@@ -335,17 +333,17 @@ if args.vae_loss_weight is not None:
 if args.anchor_lambda is not None:
     configs["anchor_lambda"] = args.anchor_lambda
 if args.sim_loss is not None:
-    configs['sim_loss'] = args.sim_loss
+    configs["sim_loss"] = args.sim_loss
 if args.fst_loss is not None:
-    configs['fst_loss'] = args.fst_loss
+    configs["fst_loss"] = args.fst_loss
 if args.aug_node is not None:
-    configs['aug_node'] = args.aug_node
+    configs["aug_node"] = args.aug_node
 if args.graph_learning is not None:
-    configs['graph_learning'] = args.graph_learning
+    configs["graph_learning"] = args.graph_learning
 if args.no_graph is not None:
-    configs['no_graph'] = args.no_graph
+    configs["no_graph"] = args.no_graph
 if args.gumbel_softmax is not None:
-    configs['gumbel_softmax'] = args.gumbel_softmax
+    configs["gumbel_softmax"] = args.gumbel_softmax
 
 configs["mode"] = args.mode
 """"""
