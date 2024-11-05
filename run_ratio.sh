@@ -4,7 +4,7 @@ do
     do
         for train_node_ratio in 0.75
         do
-            for seed in 7 8
+            for seed in 7
             do
                 for wd in 0.0001 
                 do

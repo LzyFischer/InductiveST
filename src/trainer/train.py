@@ -12,6 +12,7 @@ from src.model.stgcn_n.stgcn import STGCN_n
 import pdb
 import copy
 import wandb
+import time
 
 
 # writer = SummaryWriter(flush_secs=5)
@@ -111,7 +112,11 @@ class Trainer:
         for epoch in range(self.configs["epochs"]):
             self.aug_node_epoch = self.configs["aug_node"] and epoch % 2 == 0
             self.aug_node_n_epoch = self.configs["aug_node"] and (epoch % 2 == 1)
+            time_1 = time.time()
             train_loss = self._train_epoch(epoch)
+            time_2 = time.time()
+            train_time_epoch = time_2 - time_1
+            wandb.log({"time/train_time_epoch": train_time_epoch})
             if (self.configs["is_vae"] and epoch < self.configs["vae_epochs"]) or (
                 self.aug_node_epoch
             ):
@@ -120,7 +125,11 @@ class Trainer:
             if self.configs["model_name"] != "HI":
                 self.scheduler.step()
             eval_loss = self.eval(epoch)
+            time_1 = time.time()
             test_loss, metrics = self.test()
+            time_2 = time.time()
+            test_time_epoch = time_2 - time_1
+            wandb.log({"time/test_time_epoch": test_time_epoch})
             if eval_loss < self.loss_min:
                 self.loss_min = eval_loss
                 self.best_test = test_loss
@@ -156,6 +165,7 @@ class Trainer:
                     },
                 }
             )
+            
         logger.info("Training finished")
 
         self.model.load_state_dict(self.best_model)
