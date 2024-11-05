@@ -7,7 +7,7 @@ draw
 
 # data
 data
-datasets
+datasets/raw_data/electricity
 # src/model/stgode/datasets
 
 # local info
