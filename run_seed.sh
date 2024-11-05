@@ -1,8 +1,8 @@
 for model_name in STGODE
 do
-    for dataset_name in PEMS03 
+    for dataset_name in PEMS08
     do
-        for seed in 6 7 8 9
+        for seed in 0
         do
             for lr in 0.002
             do
@@ -64,15 +64,16 @@ do
 
                     nohup python main.py \
                         --config "configs/${model_name}/${dataset_name}.yml" \
+                        --epochs 10 \
                         --seed $seed  > $output_file 2>&1 &
 
                     # pid=$!
-                    sleep 10
+                    sleep 1
                 done
             done
         done
-        pid=$!
-        wait $pid
+        # pid=$!
+        # wait $pid
     done
 done
 

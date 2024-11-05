@@ -229,6 +229,7 @@ parser.add_argument(
     help="Activate nice mode.",
 )
 
+parser.add_argument("-ep", "--epochs", type=int, required=False, default=None)
 parser.add_argument("-lr", "--lr", type=float, required=False, default=None)
 parser.add_argument("-wd", "--weight_decay", type=float, required=False, default=None)
 parser.add_argument("-vv", "--vae_variance", type=float, required=False, default=None)
@@ -344,6 +345,8 @@ if args.no_graph is not None:
     configs["no_graph"] = args.no_graph
 if args.gumbel_softmax is not None:
     configs["gumbel_softmax"] = args.gumbel_softmax
+if args.epochs is not None:
+    configs["epochs"] = args.epochs
 
 configs["mode"] = args.mode
 """"""
