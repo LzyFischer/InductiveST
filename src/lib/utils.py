@@ -206,6 +206,7 @@ class DataTrimer:
                     break
 
         val_nodes = list(subgraph.nodes())
+        pdb.set_trace()
         if len(subgraph.nodes()) == train_num_nodes:
             train_nodes = list(subgraph.nodes())
         train_nodes.sort()
